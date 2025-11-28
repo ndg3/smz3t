@@ -1,7 +1,7 @@
 # Super Metroid + A Link to the Past Randomizer Tracker (SMZ3T)
 SMZ3T is a tracker for the [_Super Metroid_ and _The Legend of Zelda: A Link to
-the Past_ combo randomizer](samus.link) (abbreviated SMZ3, hence the name for
-this program).
+the Past_ combo randomizer](https://samus.link) (abbreviated SMZ3, hence the
+name for this program).
 
 - Features
   - Keysanity support
