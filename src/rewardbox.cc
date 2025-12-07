@@ -5,65 +5,28 @@
 #include <glibmm/fileutils.h>
 
 #include <format>
-#include <iostream>
+#include <string>
 
-RewardBox::RewardArea::RewardArea() : m_state(0), m_enabled(false) {
-  for (auto r : m_rewards) {
-    Glib::RefPtr<Gdk::Pixbuf> img =
+namespace Smz3t {
+
+RewardBox::RewardBox() : m_state(0), m_enabled(false) {
+  const std::vector<std::string> rewards{
+      "hyrule/green_pendant", "hyrule/blue_red_pendant",
+      "hyrule/blue_crystal",  "hyrule/red_crystal",
+      "zebes/kraid_reward",   "zebes/phantoon_reward",
+      "zebes/draygon_reward", "zebes/ridley_reward"};
+
+  for (auto& r : rewards) {
+    auto img =
         Gdk::Pixbuf::create_from_resource(std::format("/org/smz3t/{}.png", r));
-    m_reward_images.push_back(img);
-  }
-  set_size_request(m_reward_images[0]->get_width(),
-                   m_reward_images[0]->get_height());
-  m_max_state = m_reward_images.size() - 1;
-}
-
-RewardBox::RewardArea::~RewardArea() {}
-
-void RewardBox::RewardArea::draw_next_state() {
-  if (m_state >= m_max_state) {
-    m_state = -1;
-  }
-  m_state++;
-  queue_draw();
-}
-
-void RewardBox::RewardArea::draw_init_state() {
-  m_enabled = false;
-  m_state = 0;
-  queue_draw();
-}
-
-bool RewardBox::RewardArea::get_enabled() { return m_enabled; }
-
-void RewardBox::RewardArea::set_enabled(bool is_enabled) {
-  m_enabled = is_enabled;
-  queue_draw();
-}
-
-bool RewardBox::RewardArea::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
-  if (!m_enabled) {
-    set_opacity(0.4);
-  } else {
-    set_opacity(1.0);
+    m_reward_imgs.push_back(img);
   }
 
-  Gtk::Allocation allocation = get_allocation();
-  const int width = allocation.get_width();
-  const int height = allocation.get_height();
+  set_size_request(m_reward_imgs[0]->get_width(),
+                   m_reward_imgs[0]->get_height());
 
-  Glib::RefPtr<Gdk::Pixbuf> img = m_reward_images[m_state];
-  const int img_width = img->get_width();
-  const int img_height = img->get_height();
-  Gdk::Cairo::set_source_pixbuf(cr, img, (width - img_width) / 2,
-                                (height - img_height) / 2);
-  cr->paint();
+  m_max_state = m_reward_imgs.size() - 1;
 
-  return true;
-}
-
-RewardBox::RewardBox() {
-  add(m_item);
   add_events(Gdk::EventMask::BUTTON_RELEASE_MASK);
   signal_button_release_event().connect(
       sigc::mem_fun(*this, &RewardBox::on_button_release));
@@ -72,21 +35,47 @@ RewardBox::RewardBox() {
 RewardBox::~RewardBox() {}
 
 bool RewardBox::on_button_release(GdkEventButton* event) {
-  if (event->type == GDK_BUTTON_RELEASE) {
-    switch (event->button) {
-      case 1:  // Left click
-        m_item.set_enabled(!m_item.get_enabled());
-        break;
-      case 2:  // Middle click
-        m_item.draw_init_state();
-        break;
-      case 3:  // Right click
-        m_item.draw_next_state();
-        break;
-      default:
-        break;
-    }
-    return true;
+  // Stop if the user did something other than a click
+  if (event->type != GDK_BUTTON_RELEASE) return false;
+
+  switch (event->button) {
+    case 1:  // Left click
+      m_enabled = !m_enabled;
+      break;
+    case 2:  // Middle click
+      m_enabled = false;
+      m_state = 0;
+      break;
+    case 3:  // Right click
+      if (m_state >= m_max_state) m_state = -1;
+      ++m_state;
+      break;
   }
-  return false;
+
+  queue_draw();
+  return true;
 }
+
+bool RewardBox::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
+  // Set opacity to 100% if enabled, 40% otherwise
+  set_opacity(m_enabled ? 1.0 : 0.4);
+
+  // Start with black background
+  cr->set_source_rgb(0, 0, 0);
+  cr->fill();
+  cr->paint();
+
+  // Draw current image in the center of the drawing area
+  const int alloc_w = get_allocated_width();
+  const int alloc_h = get_allocated_height();
+  auto& img = m_reward_imgs[m_state];
+  const int img_w = img->get_width();
+  const int img_h = img->get_height();
+  Gdk::Cairo::set_source_pixbuf(cr, img, (alloc_w - img_w) / 2,
+                                (alloc_h - img_h) / 2);
+  cr->paint();
+
+  return true;
+}
+
+}  // namespace Smz3t
