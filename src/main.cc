@@ -2,6 +2,8 @@
 #include <gtkmm/grid.h>
 #include <gtkmm/notebook.h>
 #include <gtkmm/window.h>
+#include <gtkmm/cssprovider.h>
+#include <gtkmm/stylecontext.h>
 
 #include <memory>
 #include <utility>
@@ -9,6 +11,8 @@
 #include "hyrulegrid.h"
 #include "itembox.h"
 #include "zebesgrid.h"
+
+namespace Smz3t {
 
 class MainWindow : public Gtk::Window {
  public:
@@ -98,7 +102,7 @@ class MainWindow : public Gtk::Window {
                 {{"zebes/screw_attack"}, {}},
                 {{"zebes/spring_ball"}, {}}};
 
-    // Build items for _A Link to the Past_
+    // Build items for A Link to the Past
     std::size_t i = 0;
     for (auto& [item, text] : h_items) {
       std::unique_ptr<Smz3t::ItemBox> box;
@@ -124,7 +128,7 @@ class MainWindow : public Gtk::Window {
       ++i;
     }
 
-    // Build items for _Super Metroid_
+    // Build items for Super Metroid
     i = 0;
     for (auto& [item, text] : z_items) {
       std::unique_ptr<Smz3t::ItemBox> box;
@@ -191,6 +195,12 @@ class MainWindow : public Gtk::Window {
     m_main_notebook.append_page(m_page_1_grid, "Items");
     m_main_notebook.append_page(m_page_2_grid, "Areas");
     add(m_main_notebook);
+
+    // Set foreground and background color (avoids theming issues with icons)
+    auto provider = Gtk::CssProvider::create();
+    provider->load_from_data("* { color: white; background-color: black; }");
+    Gtk::StyleContext::add_provider_for_screen(get_screen(), provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
+
     show_all_children();
   }
   virtual ~MainWindow() {}
@@ -209,10 +219,12 @@ class MainWindow : public Gtk::Window {
   Gtk::Notebook m_main_notebook;
 };
 
+} // namespace Smz3t
+
 int main(int argc, char* argv[]) {
   auto app = Gtk::Application::create(argc, argv, "org.smz3t");
 
-  MainWindow main_window;
+  Smz3t::MainWindow main_window;
 
   return app->run(main_window);
 }

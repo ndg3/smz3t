@@ -57,11 +57,6 @@ bool ItemBox::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
   // Set opacity to 40% if in initial state
   set_opacity(m_state == 0 ? 0.4 : 1.0);
 
-  // Start with black background
-  cr->set_source_rgb(0, 0, 0);
-  cr->fill();
-  cr->paint();
-
   // Draw current image in the center of the drawing area
   const int alloc_w = get_allocated_width();
   const int alloc_h = get_allocated_height();
