@@ -1,5 +1,5 @@
-#ifndef SMZ3T_ZEBESGRID_H
-#define SMZ3T_ZEBESGRID_H
+#ifndef SMZ3T_ZEBESGRID_H_
+#define SMZ3T_ZEBESGRID_H_
 
 #include <gtkmm/box.h>
 #include <gtkmm/grid.h>
@@ -9,8 +9,8 @@
 #include <string>
 #include <vector>
 
-#include "itembox.h"
-#include "rewardbox.h"
+#include "src/itembox.h"
+#include "src/rewardbox.h"
 
 namespace Smz3t {
 
@@ -24,6 +24,12 @@ struct ZebesRow {
   ZebesRow();
   ZebesRow(std::string area_abbr, bool has_reward, bool has_2_keys);
   virtual ~ZebesRow();
+
+  /**
+   * Updates the state of each item or reward in this row. Each element is set
+   * to its value in the JSON in the State namespace.
+   */
+  void update_state_from_json();
 
   Gtk::Label m_area;
   std::unique_ptr<RewardBox> m_reward;
@@ -126,10 +132,16 @@ class ZebesGrid : public Gtk::Grid {
    */
   void add_row(ZebesRow* row);
 
+  /**
+   * Updates the state of each row in this grid. Each element is set to its
+   * value in the JSON in the State namespace.
+   */
+  void update_state_from_json();
+
  protected:
   std::vector<std::unique_ptr<ZebesRow>> m_rows;
 };
 
 }  // namespace Smz3t
 
-#endif  // SMZ3T_ZEBESGRID_H
+#endif  // SMZ3T_ZEBESGRID_H_

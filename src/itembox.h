@@ -1,5 +1,5 @@
-#ifndef SMZ3T_ITEMBOX_H
-#define SMZ3T_ITEMBOX_H
+#ifndef SMZ3T_ITEMBOX_H_
+#define SMZ3T_ITEMBOX_H_
 
 #include <gdkmm/pixbuf.h>
 #include <gtkmm/drawingarea.h>
@@ -16,8 +16,7 @@ namespace Smz3t {
  * Each ItemBox has a list of images that represents the item and its
  * progressive upgrades and a range of values for displaying how many of an
  * item has been collected. Usually an ItemBox with a range has only one image
- * in its list. The ItemBox also has a black background to provide better
- * contrast with light GTK themes.
+ * in its list.
  *
  * When an ItemBox is initially drawn, it shows its first image and has an
  * opacity of 40% and does not show any range values.
@@ -39,9 +38,16 @@ namespace Smz3t {
 class ItemBox : public Gtk::EventBox {
  public:
   ItemBox();
-  ItemBox(std::vector<std::string> images, unsigned int range_start = 0,
-          unsigned int range_end = 0, unsigned int range_step = 0);
+  ItemBox(std::string area, std::vector<std::string> images,
+          unsigned int range_start = 0, unsigned int range_end = 0,
+          unsigned int range_step = 0);
   virtual ~ItemBox();
+
+  /**
+   * Updates the state of this ItemBox. The value comes from the JSON in the
+   * State namespace. Normally this gets called when a new JSON file is loaded.
+   */
+  void update_state_from_json();
 
  protected:
   /**
@@ -69,6 +75,8 @@ class ItemBox : public Gtk::EventBox {
   bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
   std::vector<Glib::RefPtr<Gdk::Pixbuf>> m_imgs;
+  std::string m_area;
+  std::string m_item;
   unsigned int m_r_start;
   unsigned int m_r_end;
   unsigned int m_r_step;
@@ -78,4 +86,4 @@ class ItemBox : public Gtk::EventBox {
 
 }  // namespace Smz3t
 
-#endif  // SMZ3T_ITEMBOX_H
+#endif  // SMZ3T_ITEMBOX_H_

@@ -1,4 +1,4 @@
-#include "itembox.h"
+#include "src/itembox.h"
 
 #include <cairomm/context.h>
 #include <gdkmm/general.h>
@@ -7,17 +7,27 @@
 #include <algorithm>
 #include <format>
 #include <string>
+#include <vector>
+
+#include "src/state.h"
 
 namespace Smz3t {
 
 ItemBox::ItemBox() {}
 
-ItemBox::ItemBox(std::vector<std::string> images, unsigned int r_start,
-                 unsigned int r_end, unsigned int r_step)
-    : m_r_start(r_start), m_r_end(r_end), m_r_step(r_step), m_state(0) {
+ItemBox::ItemBox(std::string area, std::vector<std::string> images,
+                 unsigned int r_start, unsigned int r_end, unsigned int r_step)
+    : m_area(area),
+      m_item(images[0]),
+      m_r_start(r_start),
+      m_r_end(r_end),
+      m_r_step(r_step),
+      m_state(0) {
+  std::string world = area.substr(0, area.find(':'));
   for (auto& i : images) {
-    auto img =
-        Gdk::Pixbuf::create_from_resource(std::format("/org/smz3t/{}.png", i));
+    std::string item_name = i.substr(0, i.find(':'));
+    auto img = Gdk::Pixbuf::create_from_resource(
+        std::format("/org/smz3t/{}/{}.png", world, item_name));
     m_imgs.push_back(img);
   }
 
@@ -33,22 +43,37 @@ ItemBox::ItemBox(std::vector<std::string> images, unsigned int r_start,
 
 ItemBox::~ItemBox() {}
 
+void ItemBox::update_state_from_json() {
+  int tmp_state = State::get_item_state(m_area, m_item);
+  if (tmp_state < 0 || static_cast<unsigned int>(tmp_state) > m_max_state) {
+    return;
+  }
+  m_state = tmp_state;
+}
+
 bool ItemBox::on_button_release(GdkEventButton* event) {
   // Stop if the user did something other than a click
-  if (event->type != GDK_BUTTON_RELEASE) return false;
+  if (event->type != GDK_BUTTON_RELEASE) {
+    return false;
+  }
 
   switch (event->button) {
     case 1:  // Left click
-      if (m_state < m_max_state) ++m_state;
+      if (m_state < m_max_state) {
+        ++m_state;
+      }
       break;
     case 2:  // Middle click
       m_state = 0;
       break;
     case 3:  // Right click
-      if (m_state > 0) --m_state;
+      if (m_state > 0) {
+        --m_state;
+      }
       break;
   }
 
+  State::set_item_state(m_area, m_item, m_state);
   queue_draw();
   return true;
 }
@@ -68,7 +93,9 @@ bool ItemBox::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
   cr->paint();
 
   // Stop if there is no range to draw or if in the initial state
-  if (m_r_step == 0 || m_state == 0) return true;
+  if (m_r_step == 0 || m_state == 0) {
+    return true;
+  }
 
   // Draw current range value in bold text with a faint black background for
   // contrast
@@ -77,10 +104,11 @@ bool ItemBox::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
       "<span background=\"#0000003F\" weight=\"bold\">{}</span>", count);
 
   // Draw the range value in green if at the end, otherwise draw in white
-  if (count == m_r_end)
+  if (count == m_r_end) {
     cr->set_source_rgb(0, 1, 0);
-  else
+  } else {
     cr->set_source_rgb(1, 1, 1);
+  }
 
   // Draw the range value in the bottom-right corner of the drawing area
   auto layout = create_pango_layout("");

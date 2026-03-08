@@ -1,5 +1,5 @@
-#ifndef SMZ3T_DUNGEONGRID_H
-#define SMZ3T_DUNGEONGRID_H
+#ifndef SMZ3T_HYRULEGRID_H_
+#define SMZ3T_HYRULEGRID_H_
 
 #include <gtkmm/grid.h>
 #include <gtkmm/label.h>
@@ -8,8 +8,8 @@
 #include <string>
 #include <vector>
 
-#include "itembox.h"
-#include "rewardbox.h"
+#include "src/itembox.h"
+#include "src/rewardbox.h"
 
 namespace Smz3t {
 
@@ -24,6 +24,12 @@ struct HyruleRow {
   HyruleRow(std::string area_abbr, bool has_reward, unsigned int box_keys = 0,
             unsigned int drop_keys = 0);
   virtual ~HyruleRow();
+
+  /**
+   * Updates the state of each item or reward in this row. Each element is set
+   * to its value in the JSON in the State namespace.
+   */
+  void update_state_from_json();
 
   Gtk::Label m_area;
   std::unique_ptr<RewardBox> m_reward;
@@ -148,10 +154,16 @@ class HyruleGrid : public Gtk::Grid {
    */
   void add_row(HyruleRow* row);
 
+  /**
+   * Updates the state of each row in this grid. Each element is set to its
+   * value in the JSON in the State namespace.
+   */
+  void update_state_from_json();
+
  protected:
   std::vector<std::unique_ptr<HyruleRow>> m_rows;
 };
 
 }  // namespace Smz3t
 
-#endif  // SMZ3T_DUNGEONGRID_H
+#endif  // SMZ3T_HYRULEGRID_H_

@@ -1,4 +1,4 @@
-#include "rewardbox.h"
+#include "src/rewardbox.h"
 
 #include <cairomm/context.h>
 #include <gdkmm/general.h>
@@ -6,10 +6,16 @@
 
 #include <format>
 #include <string>
+#include <vector>
+
+#include "src/state.h"
 
 namespace Smz3t {
 
-RewardBox::RewardBox() : m_state(0), m_enabled(false) {
+RewardBox::RewardBox() {}
+
+RewardBox::RewardBox(std::string area)
+    : m_area(area), m_state(0), m_enabled(false) {
   const std::vector<std::string> rewards{
       "hyrule/green_pendant", "hyrule/blue_red_pendant",
       "hyrule/blue_crystal",  "hyrule/red_crystal",
@@ -34,9 +40,24 @@ RewardBox::RewardBox() : m_state(0), m_enabled(false) {
 
 RewardBox::~RewardBox() {}
 
+void RewardBox::update_state_from_json() {
+  int tmp_enabled = State::get_item_state(m_area, "reward");
+  if (tmp_enabled != 0 && tmp_enabled != 1) {
+    return;
+  }
+  int tmp_state = State::get_item_state(m_area, "reward_type");
+  if (tmp_state < 0 || static_cast<unsigned int>(tmp_state) > m_max_state) {
+    return;
+  }
+  m_enabled = tmp_enabled;
+  m_state = tmp_state;
+}
+
 bool RewardBox::on_button_release(GdkEventButton* event) {
   // Stop if the user did something other than a click
-  if (event->type != GDK_BUTTON_RELEASE) return false;
+  if (event->type != GDK_BUTTON_RELEASE) {
+    return false;
+  }
 
   switch (event->button) {
     case 1:  // Left click
@@ -47,11 +68,15 @@ bool RewardBox::on_button_release(GdkEventButton* event) {
       m_state = 0;
       break;
     case 3:  // Right click
-      if (m_state >= m_max_state) m_state = -1;
+      if (m_state >= m_max_state) {
+        m_state = -1;
+      }
       ++m_state;
       break;
   }
 
+  State::set_item_state(m_area, "reward", m_enabled);
+  State::set_item_state(m_area, "reward_type", m_state);
   queue_draw();
   return true;
 }

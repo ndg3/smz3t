@@ -1,13 +1,11 @@
 # Super Metroid + A Link to the Past Randomizer Tracker (SMZ3T)
 SMZ3T is a tracker for the [_Super Metroid_ and _The Legend of Zelda: A Link to
-the Past_ combo randomizer](https://samus.link) (abbreviated SMZ3, hence the
-name for this program).
+the Past_ combo randomizer](https://samus.link).
 
 - Features
-  - Keysanity support
   - Simple and condensed layout
-- Upcoming features
-  - Save and restore
+  - Keysanity support
+  - Save and restore in JSON format
 - Upcoming but may take a while
   - Location tracker to show whether a location can be reached with the current
   items collected
@@ -16,6 +14,7 @@ name for this program).
 This program requires
 - [Meson](https://mesonbuild.com/index.html)
 - [gtkmm 3](https://gtkmm.gnome.org/en/index.html)
+- [nlohmann/json](https://github.com/nlohmann/json)
 - A C/C++ compiler (tested with [gcc](https://gcc.gnu.org/) and
 [clang](https://clang.llvm.org/))
 
@@ -48,7 +47,6 @@ crystal, red crystal, Kraid reward, Phantoon reward, Draygon reward, and Ridley
 reward). The item does not have to be marked to do this.
 - Middle-click to reset to an unmarked green pendant.
 
-Dungeons in ALTTP also have special icons for keys in treasure chests and keys
-dropped from enemies or pots. They have a counter that shows how many of either
-key have been collected out of the total for that dungeon, but otherwise they
-work just like normal items.
+To save your progress, click on the "Save" tab and click the "Save" button. The
+state will be saved in JSON format. You can also load a previous save by
+clicking on the "Open" button.

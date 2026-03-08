@@ -1,9 +1,10 @@
-#ifndef SMZ3T_REWARDBOX_H
-#define SMZ3T_REWARDBOX_H
+#ifndef SMZ3T_REWARDBOX_H_
+#define SMZ3T_REWARDBOX_H_
 
 #include <gtkmm/drawingarea.h>
 #include <gtkmm/eventbox.h>
 
+#include <string>
 #include <vector>
 
 namespace Smz3t {
@@ -45,7 +46,14 @@ namespace Smz3t {
 class RewardBox : public Gtk::EventBox {
  public:
   RewardBox();
+  explicit RewardBox(std::string area);
   virtual ~RewardBox();
+
+  /**
+   * Updates the state of this RewardBox. The value comes from the JSON in the
+   * State namespace. Normally this gets called when a new JSON file is loaded.
+   */
+  void update_state_from_json();
 
  protected:
   /**
@@ -71,6 +79,7 @@ class RewardBox : public Gtk::EventBox {
   bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
   std::vector<Glib::RefPtr<Gdk::Pixbuf>> m_reward_imgs;
+  std::string m_area;
   unsigned int m_state;
   unsigned int m_max_state;
   bool m_enabled;
@@ -78,4 +87,4 @@ class RewardBox : public Gtk::EventBox {
 
 }  // namespace Smz3t
 
-#endif  // SMZ3T_REWARDBOX_H
+#endif  // SMZ3T_REWARDBOX_H_
