@@ -1,5 +1,5 @@
 project('SMZ3 Tracker', 'cpp', 'c',
-  version: '2.0',
+  version: '2.1',
   default_options: ['buildtype=release',
                     'warning_level=3',
                     'cpp_std=c++20'])

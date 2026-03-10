@@ -21,8 +21,9 @@ namespace Smz3t {
  */
 struct HyruleRow {
   HyruleRow();
-  HyruleRow(std::string area_abbr, bool has_reward, unsigned int box_keys = 0,
-            unsigned int drop_keys = 0);
+  HyruleRow(std::string area_abbr, bool has_reward, bool has_dungeon_map,
+            bool has_compass, unsigned int box_keys, unsigned int drop_keys,
+            bool has_big_key);
   virtual ~HyruleRow();
 
   /**
@@ -33,11 +34,11 @@ struct HyruleRow {
 
   Gtk::Label m_area;
   std::unique_ptr<RewardBox> m_reward;
-  ItemBox m_dungeon_map;
-  ItemBox m_compass;
+  std::unique_ptr<ItemBox> m_dungeon_map;
+  std::unique_ptr<ItemBox> m_compass;
   std::unique_ptr<ItemBox> m_box_keys;
   std::unique_ptr<ItemBox> m_drop_keys;
-  ItemBox m_big_key;
+  std::unique_ptr<ItemBox> m_big_key;
 };
 
 /**
@@ -49,14 +50,23 @@ struct HyruleRow {
  *
  * Next, call any of these functions in any order
  * - `reward()` to indicate that a reward can be collected from this area.
+ * - `dungeon_map()` to indicate that this area has a dungeon map.
+ * - `compass()` to indicate that this area has a compass.
  * - `box_keys()` to indicate that this area has a given number of keys
  *   collected from chests.
  * - `drop_keys()` to indicate that this area has a given number of keys dropped
  *   from pots or enemies.
+ * - `big_key()` to indicate that this area has a big key.
  *
  * A distinction is made between "box" keys and "drop" keys due to the current
  * Keysanity logic, as box keys are shuffled and drop keys are not. This
  * distinction is less important for non-Keysanity seeds.
+ *
+ * There are also presets for common dungeon types, including
+ * - `p_no_reward()` for dungeons with everything but a reward.
+ * - `p_dungeon_all()` for dungeons with everything.
+ * - `p_dungeon_box()` for dungeons with box keys and no drop keys.
+ * - `p_dungeon_drop()` for dungeons with drop keys and no box keys.
  *
  * Finally, call `build()` to create a new HyruleRow based on the previously
  * called methods. The memory associated with this HyruleRow is owned by the
@@ -91,6 +101,22 @@ class HyruleRowBuilder {
   HyruleRowBuilder& reward();
 
   /**
+   * Sets the `has_dungeon_map` property for this HyruleRowBuilder, indicating that
+   * the generated HyruleRow will have a dungeon map.
+   *
+   * @returns The current HyruleRowBuilder.
+   */
+  HyruleRowBuilder& dungeon_map();
+
+  /**
+   * Sets the `has_compass` property for this HyruleRowBuilder, indicating that
+   * the generated HyruleRow will have a compass.
+   *
+   * @returns The current HyruleRowBuilder.
+   */
+  HyruleRowBuilder& compass();
+
+  /**
    * Sets the `box_keys` property for this HyruleRowBuilder, indicating that the
    * generated HyruleRow will have the given number of box keys.
    *
@@ -111,6 +137,57 @@ class HyruleRowBuilder {
   HyruleRowBuilder& drop_keys(unsigned int drop_keys);
 
   /**
+   * Sets the `big_key` property for this HyruleRowBuilder, indicating that the
+   * generated HyruleRow will have a big key.
+   *
+   * @returns The current HyruleRowBuilder.
+   */
+  HyruleRowBuilder& big_key();
+
+  /**
+   * Preset for a dungeon that has everything but a reward (e.g., Hyrule Castle
+   * and Ganon's Tower).
+   *
+   * @param box_keys The number of keys in this area that are collected from
+   * chests (box keys).
+   * @param drop_keys The number of keys in this area that are dropped from pots
+   * or enemies (drop keys).
+   * @returns The current HyruleRowBuilder.
+   */
+  HyruleRowBuilder& p_no_reward(unsigned int box_keys, unsigned int drop_keys);
+
+  /**
+   * Preset for a dungeon that has everything (e.g. Desert Palace).
+   *
+   * @param box_keys The number of keys in this area that are collected from
+   * chests (box keys).
+   * @param drop_keys The number of keys in this area that are dropped from pots
+   * or enemies (drop keys).
+   * @returns The current HyruleRowBuilder.
+   */
+  HyruleRowBuilder& p_dungeon_all(unsigned int box_keys, unsigned int drop_keys);
+
+  /**
+   * Preset for a dungeon that has box keys and no drop keys (e.g. Tower of
+   * Hera).
+   *
+   * @param box_keys The number of keys in this area that are collected from
+   * chests (box keys).
+   * @returns The current HyruleRowBuilder.
+   */
+  HyruleRowBuilder& p_dungeon_box(unsigned int box_keys);
+
+  /**
+   * Preset for a dungeon that has drop keys and no box keys (e.g. Eastern
+   * Palace).
+   *
+   * @param drop_keys The number of keys in this area that are dropped from pots
+   * or enemies (drop keys).
+   * @returns The current HyruleRowBuilder.
+   */
+  HyruleRowBuilder& p_dungeon_drop(unsigned int drop_keys);
+
+  /**
    * Builds a new HyruleRow based on the methods called on this
    * HyruleRowBuilder.
    *
@@ -121,8 +198,11 @@ class HyruleRowBuilder {
  protected:
   std::string m_area;
   bool m_has_reward;
+  bool m_has_dungeon_map;
+  bool m_has_compass;
   unsigned int m_box_keys;
   unsigned int m_drop_keys;
+  bool m_has_big_key;
 };
 
 /**

@@ -146,27 +146,20 @@ class MainWindow : public Gtk::Window {
     }
 
     // Build the HyruleGrid
-    Smz3t::HyruleRowBuilder rb;
-    m_h_area_grid.add_row(rb.init("HC").box_keys(1).drop_keys(2).build());
-    m_h_area_grid.add_row(rb.init("AT").box_keys(2).drop_keys(3).build());
-    m_h_area_grid.add_row(rb.init("EP").reward().drop_keys(2).build());
-    m_h_area_grid.add_row(
-        rb.init("DP").reward().box_keys(1).drop_keys(3).build());
-    m_h_area_grid.add_row(rb.init("TH").reward().box_keys(1).build());
-    m_h_area_grid.add_row(rb.init("PD").reward().box_keys(6).build());
-    m_h_area_grid.add_row(
-        rb.init("SP").reward().box_keys(1).drop_keys(5).build());
-    m_h_area_grid.add_row(
-        rb.init("SW").reward().box_keys(3).drop_keys(2).build());
-    m_h_area_grid.add_row(
-        rb.init("TT").reward().box_keys(1).drop_keys(2).build());
-    m_h_area_grid.add_row(
-        rb.init("IP").reward().box_keys(2).drop_keys(4).build());
-    m_h_area_grid.add_row(
-        rb.init("MM").reward().box_keys(3).drop_keys(3).build());
-    m_h_area_grid.add_row(
-        rb.init("TR").reward().box_keys(4).drop_keys(2).build());
-    m_h_area_grid.add_row(rb.init("GT").box_keys(4).drop_keys(4).build());
+    Smz3t::HyruleRowBuilder hb;
+    m_h_area_grid.add_row(hb.init("HC").p_no_reward(1, 2).build());
+    m_h_area_grid.add_row(hb.init("EP").p_dungeon_drop(2).build());
+    m_h_area_grid.add_row(hb.init("DP").p_dungeon_all(1, 3).build());
+    m_h_area_grid.add_row(hb.init("TH").p_dungeon_box(1).build());
+    m_h_area_grid.add_row(hb.init("CT").box_keys(2).drop_keys(3).build());
+    m_h_area_grid.add_row(hb.init("PD").p_dungeon_box(6).build());
+    m_h_area_grid.add_row(hb.init("SP").p_dungeon_all(1, 5).build());
+    m_h_area_grid.add_row(hb.init("SW").p_dungeon_all(3, 2).build());
+    m_h_area_grid.add_row(hb.init("TT").p_dungeon_all(1, 2).build());
+    m_h_area_grid.add_row(hb.init("IP").p_dungeon_all(2, 4).build());
+    m_h_area_grid.add_row(hb.init("MM").p_dungeon_all(3, 3).build());
+    m_h_area_grid.add_row(hb.init("TR").p_dungeon_all(4, 2).build());
+    m_h_area_grid.add_row(hb.init("GT").p_no_reward(4, 4).build());
 
     // Build the ZebesGrid
     Smz3t::ZebesRowBuilder zb;

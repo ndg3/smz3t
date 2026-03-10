@@ -9,24 +9,38 @@ namespace Smz3t {
 HyruleRow::HyruleRow() {}
 
 HyruleRow::HyruleRow(std::string area_abbr, bool has_reward,
-                     unsigned int box_keys, unsigned int drop_keys)
-    : m_dungeon_map("hyrule:" + area_abbr, {"dungeon_map"}),
-      m_compass("hyrule:" + area_abbr, {"compass"}),
-      m_big_key("hyrule:" + area_abbr, {"big_key"}) {
+                     bool has_dungeon_map, bool has_compass,
+                     unsigned int box_keys, unsigned int drop_keys,
+                     bool has_big_key) {
   m_area.set_markup(std::format("<span weight=\"bold\">{}</span>", area_abbr));
 
   if (has_reward) {
     m_reward = std::unique_ptr<RewardBox>(new RewardBox("hyrule:" + area_abbr));
   }
 
-  if (box_keys) {
+  if (has_dungeon_map) {
+    m_dungeon_map = std::unique_ptr<ItemBox>(
+        new ItemBox("hyrule:" + area_abbr, {"dungeon_map"}));
+  }
+
+  if (has_compass) {
+    m_compass = std::unique_ptr<ItemBox>(
+        new ItemBox("hyrule:" + area_abbr, {"compass"}));
+  }
+
+  if (box_keys > 0) {
     m_box_keys = std::unique_ptr<ItemBox>(
         new ItemBox("hyrule:" + area_abbr, {"box_key"}, 1, box_keys, 1));
   }
 
-  if (drop_keys) {
+  if (drop_keys > 0) {
     m_drop_keys = std::unique_ptr<ItemBox>(
         new ItemBox("hyrule:" + area_abbr, {"drop_key"}, 1, drop_keys, 1));
+  }
+
+  if (has_big_key) {
+    m_big_key = std::unique_ptr<ItemBox>(
+        new ItemBox("hyrule:" + area_abbr, {"big_key"}));
   }
 }
 
@@ -36,15 +50,21 @@ void HyruleRow::update_state_from_json() {
   if (m_reward) {
     m_reward->update_state_from_json();
   }
-  m_dungeon_map.update_state_from_json();
-  m_compass.update_state_from_json();
+  if (m_dungeon_map) {
+    m_dungeon_map->update_state_from_json();
+  }
+  if (m_compass) {
+    m_compass->update_state_from_json();
+  }
   if (m_box_keys) {
     m_box_keys->update_state_from_json();
   }
   if (m_drop_keys) {
     m_drop_keys->update_state_from_json();
   }
-  m_big_key.update_state_from_json();
+  if (m_big_key) {
+    m_big_key->update_state_from_json();
+  }
 }
 
 HyruleRowBuilder::HyruleRowBuilder() {}
@@ -54,13 +74,26 @@ HyruleRowBuilder::~HyruleRowBuilder() {}
 HyruleRowBuilder& HyruleRowBuilder::init(std::string area_abbr) {
   m_area = area_abbr;
   m_has_reward = false;
+  m_has_dungeon_map = false;
+  m_has_compass = false;
   m_box_keys = 0;
   m_drop_keys = 0;
+  m_has_big_key = false;
   return *this;
 }
 
 HyruleRowBuilder& HyruleRowBuilder::reward() {
   m_has_reward = true;
+  return *this;
+}
+
+HyruleRowBuilder& HyruleRowBuilder::dungeon_map() {
+  m_has_dungeon_map = true;
+  return *this;
+}
+
+HyruleRowBuilder& HyruleRowBuilder::compass() {
+  m_has_compass = true;
   return *this;
 }
 
@@ -74,8 +107,54 @@ HyruleRowBuilder& HyruleRowBuilder::drop_keys(unsigned int drop_keys) {
   return *this;
 }
 
+HyruleRowBuilder& HyruleRowBuilder::big_key() {
+  m_has_big_key = true;
+  return *this;
+}
+
+HyruleRowBuilder& HyruleRowBuilder::p_no_reward(unsigned int box_keys, unsigned int drop_keys) {
+  m_has_reward = false;
+  m_has_dungeon_map = true;
+  m_has_compass = true;
+  m_box_keys = box_keys;
+  m_drop_keys = drop_keys;
+  m_has_big_key = true;
+  return *this;
+}
+
+HyruleRowBuilder& HyruleRowBuilder::p_dungeon_all(unsigned int box_keys, unsigned int drop_keys) {
+  m_has_reward = true;
+  m_has_dungeon_map = true;
+  m_has_compass = true;
+  m_box_keys = box_keys;
+  m_drop_keys = drop_keys;
+  m_has_big_key = true;
+  return *this;
+}
+
+HyruleRowBuilder& HyruleRowBuilder::p_dungeon_box(unsigned int box_keys) {
+  m_has_reward = true;
+  m_has_dungeon_map = true;
+  m_has_compass = true;
+  m_box_keys = box_keys;
+  m_drop_keys = 0;
+  m_has_big_key = true;
+  return *this;
+}
+
+HyruleRowBuilder& HyruleRowBuilder::p_dungeon_drop(unsigned int drop_keys) {
+  m_has_reward = true;
+  m_has_dungeon_map = true;
+  m_has_compass = true;
+  m_box_keys = 0;
+  m_drop_keys = drop_keys;
+  m_has_big_key = true;
+  return *this;
+}
+
 HyruleRow* HyruleRowBuilder::build() {
-  return new HyruleRow(m_area, m_has_reward, m_box_keys, m_drop_keys);
+  return new HyruleRow(m_area, m_has_reward, m_has_dungeon_map, m_has_compass,
+                       m_box_keys, m_drop_keys, m_has_big_key);
 }
 
 HyruleGrid::HyruleGrid() {}
@@ -92,15 +171,21 @@ void HyruleGrid::add_row(HyruleRow* row) {
   if (row->m_reward) {
     attach(*row->m_reward, r + 1, c);
   }
-  attach(row->m_dungeon_map, r + 2, c);
-  attach(row->m_compass, r + 3, c);
+  if (row->m_dungeon_map) {
+    attach(*row->m_dungeon_map, r + 2, c);
+  }
+  if (row->m_compass) {
+    attach(*row->m_compass, r + 3, c);
+  }
   if (row->m_box_keys) {
     attach(*row->m_box_keys, r + 4, c);
   }
   if (row->m_drop_keys) {
     attach(*row->m_drop_keys, r + 5, c);
   }
-  attach(row->m_big_key, r + 6, c);
+  if (row->m_big_key) {
+    attach(*row->m_big_key, r + 6, c);
+  }
 }
 
 void HyruleGrid::update_state_from_json() {
