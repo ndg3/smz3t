@@ -147,7 +147,8 @@ class MainWindow : public Gtk::Window {
 
     // Build the HyruleGrid
     Smz3t::HyruleRowBuilder hb;
-    m_h_area_grid.add_row(hb.init("HC").p_no_reward(1, 2).build());
+    m_h_area_grid.add_row(
+        hb.init("HC").dungeon_map().box_keys(1).drop_keys(2).big_key().build());
     m_h_area_grid.add_row(hb.init("EP").p_dungeon_drop(2).build());
     m_h_area_grid.add_row(hb.init("DP").p_dungeon_all(1, 3).build());
     m_h_area_grid.add_row(hb.init("TH").p_dungeon_box(1).build());
@@ -159,7 +160,8 @@ class MainWindow : public Gtk::Window {
     m_h_area_grid.add_row(hb.init("IP").p_dungeon_all(2, 4).build());
     m_h_area_grid.add_row(hb.init("MM").p_dungeon_all(3, 3).build());
     m_h_area_grid.add_row(hb.init("TR").p_dungeon_all(4, 2).build());
-    m_h_area_grid.add_row(hb.init("GT").p_no_reward(4, 4).build());
+    m_h_area_grid.add_row(
+        hb.init("GT").dungeon_map().box_keys(4).drop_keys(4).big_key().build());
 
     // Build the ZebesGrid
     Smz3t::ZebesRowBuilder zb;
