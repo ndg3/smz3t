@@ -148,7 +148,7 @@ class MainWindow : public Gtk::Window {
     // Build the HyruleGrid
     Smz3t::HyruleRowBuilder hb;
     m_h_area_grid.add_row(
-        hb.init("HC").dungeon_map().box_keys(1).drop_keys(2).big_key().build());
+        hb.init("HC").dungeon_map().box_keys(1).drop_keys(3).big_key().build());
     m_h_area_grid.add_row(hb.init("EP").p_dungeon_drop(2).build());
     m_h_area_grid.add_row(hb.init("DP").p_dungeon_all(1, 3).build());
     m_h_area_grid.add_row(hb.init("TH").p_dungeon_box(1).build());
