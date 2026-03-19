@@ -236,7 +236,7 @@ json current_state = {{"hyrule",
                                 {"key_1", 0},
                                 {"boss_key", 0},
                             }},
-                           {"LF",
+                           {"LN",
                             {
                                 {"reward_type", 0},
                                 {"reward", 0},
